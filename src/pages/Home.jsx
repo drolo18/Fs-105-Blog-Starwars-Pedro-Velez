@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 
 
+
 export const Home = () => {
 
 	const { store, dispatch } = useGlobalReducer()
@@ -16,6 +17,7 @@ export const Home = () => {
 			const response = await fetch(people.url)
 			const data = await response.json()
 			return data.result.properties
+
 		} catch (error) {
 			console.log(error)
 		}
@@ -78,6 +80,7 @@ export const Home = () => {
 	return (
 
 		<>
+			<h1 className="text-center">Personajes</h1>
 			<div className="carrousel">
 				{people.map((people) => (
 					<div key={people.url} className="card" style={{ width: '18rem', minWidth: '18rem' }}>
@@ -95,6 +98,7 @@ export const Home = () => {
 					</div>
 				))}
 			</div>
+			<h1 className="text-center">Planetas</h1>
 			<div className="carrousel">
 				{planets.map((planets) => (
 					<div key={planets.url} className="card" style={{ width: '18rem', minWidth: '18rem' }}>
