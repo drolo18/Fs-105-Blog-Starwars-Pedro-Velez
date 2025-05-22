@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { Link } from "react-router-dom";
+import { array } from "prop-types";
 
 
 export const Home = () => {
@@ -8,6 +9,7 @@ export const Home = () => {
 	const { store, dispatch } = useGlobalReducer()
 	const [people, setPeople] = useState([])
 	const [planets, setPlanets]=useState([])
+	const {person, favoritos} = store
 
 
 
@@ -16,6 +18,7 @@ export const Home = () => {
 		try {
 			const response = await fetch(person.url)
 			const data = await response.json()
+			
 			return { ...data.result.properties, uid: data.result.uid }
 		} catch (error) {
 			console.log(error)
@@ -31,9 +34,15 @@ export const Home = () => {
 			}
 			const response = await fetch('https://www.swapi.tech/api/people/')
 			const data = await response.json()
+			console.log(data)
 			const peoples = await Promise.all(data.results.map(getPeopleDetail))
 			setPeople(peoples)
 			localStorage.setItem("people", JSON.stringify(peoples))
+			dispatch({
+				type: 'add_people',
+				payload: data.results
+			})
+			
 
 		} catch (error) {
 			console.log(error)
@@ -68,15 +77,50 @@ export const Home = () => {
 		}
 	}
 
+	const isFavorite =(item)=> { 
+		const favoritos = Array.isArray(store.favoritos)?store.favoritos : []
+		console.log(favoritos)
+		return favoritos.some(fav => fav && fav.data && fav.data.name === item.name && fav.data.uid === item.uid)
+		
+	}
+	console.log(isFavorite)
 
+	const HandleFavorite = (item) => {
+		const isCurrentlyFavorite = isFavorite(item)
+		if (isCurrentlyFavorite) {
+			dispatch({
+				type: 'remove_favorite',
+				payload: {
+					name: item.name,
+					uid: item.uid
+				}
+			})
+		} else {
+			dispatch({
+				type: 'add_favorite',
+				payload: {
+					data: {
+						name: item.name,
+						uid: item.uid,
+						type: item
+					}
+				}
+			})
+		}
+	}
+	
+
+	
 
 	useEffect(() => {
-			getPlanets()
-			getPeople()
+		getPlanets()
+		getPeople()
 		
 	}, [])
 	
 
+	
+	
 	return (
 
 		<>
@@ -99,7 +143,7 @@ export const Home = () => {
                                 >
                                     Learn More!
                                 </Link>
-								<a href="" className="btn btn-outline-warning">&#9829;</a>
+								<button onClick={() => HandleFavorite(person)} className="btn btn-outline-warning">&#9829;</button>
 							</div>
 						</div>
 					</div>
@@ -124,7 +168,7 @@ export const Home = () => {
                                 >
                                     Learn More!
                                 </Link>
-								<a href="" className="btn btn-outline-warning">&#9829;</a>
+								<button onClick={() => HandleFavorite(planet)} className="btn btn-outline-warning">&#9829;</button>
 							</div>
 						</div>
 					</div>
