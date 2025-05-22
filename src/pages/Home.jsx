@@ -10,7 +10,7 @@ export const Home = () => {
 	const [people, setPeople] = useState([])
 	const [planets, setPlanets]=useState([])
 	const {person, favoritos} = store
-
+	const [vehicles,setVehicles]= useState([])
 
 
 
@@ -76,14 +76,42 @@ export const Home = () => {
 			console.log(error)
 		}
 	}
+	const getVehicleDetail = async (vehicle) => {
+		try {
+			const response = await fetch(vehicle.url)
+			const data = await response.json()
+			
+			return { ...data.result.properties, uid: data.result.uid }
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	const getVehicles = async () => {
+		try {
+			const vehiclesStorage = localStorage.getItem("vehicles")
+			if(vehiclesStorage){
+				setVehicles(JSON.parse(vehiclesStorage))
+				return
+			}
+			const response = await fetch('https://www.swapi.tech/api/vehicles/')
+			const data = await response.json()
+			console.log(data)
+			const vehicles = await Promise.all(data.results.map(getVehicleDetail))
+			setVehicles(vehicles)
+			localStorage.setItem("vehicles", JSON.stringify(vehicles))
+		
+
+		} catch (error) {
+			console.log(error)
+		}
+	}
 
 	const isFavorite =(item)=> { 
 		const favoritos = Array.isArray(store.favoritos)?store.favoritos : []
-		console.log(favoritos)
 		return favoritos.some(fav => fav && fav.data && fav.data.name === item.name && fav.data.uid === item.uid)
-		
 	}
-	console.log(isFavorite)
+	
 
 	const HandleFavorite = (item) => {
 		const isCurrentlyFavorite = isFavorite(item)
@@ -115,6 +143,7 @@ export const Home = () => {
 	useEffect(() => {
 		getPlanets()
 		getPeople()
+		getVehicles()
 		
 	}, [])
 	
@@ -169,6 +198,31 @@ export const Home = () => {
                                     Learn More!
                                 </Link>
 								<button onClick={() => HandleFavorite(planet)} className="btn btn-outline-warning">&#9829;</button>
+							</div>
+						</div>
+					</div>
+				))}
+			</div>
+			<h1 className="text-center">Vehiculos</h1>
+			<div className="carrousel">
+				{vehicles
+				.filter(vehicle=> vehicle.uid)
+				.map((vehicle) => (
+					<div key={vehicle.uid} className="card" style={{ width: '18rem', minWidth: '18rem' }}>
+						<img src="" className="card-img-top" alt="..." />
+						<div className="card-body">
+							<h5 className="card-title">Nombre: {vehicle.name}</h5>
+							<p className="card-text">Capacidad de Carga: {vehicle.cargo_capacity}</p>
+							<p className="card-text">Consumibles: {vehicle.consumables}</p>
+							<p className="card-text">Valor: {vehicle.cost_in_credits}</p>
+							<div className="d-flex justify-content-between">
+								<Link
+                                    to={`/vehicles/${vehicle.uid}`}
+                                    className="btn btn-outline-primary"
+                                >
+                                    Learn More!
+                                </Link>
+								<button onClick={() => HandleFavorite(vehicle)} className="btn btn-outline-warning">&#9829;</button>
 							</div>
 						</div>
 					</div>
