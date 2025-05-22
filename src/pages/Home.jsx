@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
-
+import { Link } from "react-router-dom";
 
 
 export const Home = () => {
@@ -12,12 +12,11 @@ export const Home = () => {
 
 
 
-	const getPeopleDetail = async (people) => {
+	const getPeopleDetail = async (person) => {
 		try {
-			const response = await fetch(people.url)
+			const response = await fetch(person.url)
 			const data = await response.json()
-			return data.result.properties
-
+			return { ...data.result.properties, uid: data.result.uid }
 		} catch (error) {
 			console.log(error)
 		}
@@ -40,11 +39,11 @@ export const Home = () => {
 			console.log(error)
 		}
 	}
-	const getPlanetsDetail = async (planets) => {
+	const getPlanetsDetail = async (planet) => {
 		try {
-			const response = await fetch(planets.url)
+			const response = await fetch(planet.url)
 			const data = await response.json()
-			return data.result.properties
+			return { ...data.result.properties, uid: data.result.uid }
 		} catch (error) {
 			console.log(error)
 		}
@@ -76,22 +75,30 @@ export const Home = () => {
 			getPeople()
 		
 	}, [])
+	
 
 	return (
 
 		<>
 			<h1 className="text-center">Personajes</h1>
 			<div className="carrousel">
-				{people.map((people) => (
-					<div key={people.url} className="card" style={{ width: '18rem', minWidth: '18rem' }}>
+				{people
+				.filter(people=> people.uid)
+				.map((person) => (
+					<div key={person.uid} className="card" style={{ width: '18rem', minWidth: '18rem' }}>
 						<img src="" className="card-img-top" alt="..." />
 						<div className="card-body">
-							<h5 className="card-title">Nombre: {people.name}</h5>
-							<p className="card-text">Gender: {people.gender}</p>
-							<p className="card-text">Hair-color: {people.hair_color}</p>
-							<p className="card-text">Eye-color: {people.eye_color}</p>
+							<h5 className="card-title">Nombre: {person.name}</h5>
+							<p className="card-text">Gender: {person.gender}</p>
+							<p className="card-text">Hair-color: {person.hair_color}</p>
+							<p className="card-text">Eye-color: {person.eye_color}</p>
 							<div className="d-flex justify-content-between">
-								<a href="#" className="btn btn-outline-primary">Learn More!</a>
+								<Link
+                                    to={`/person/${person.uid}`}
+                                    className="btn btn-outline-primary"
+                                >
+                                    Learn More!
+                                </Link>
 								<a href="" className="btn btn-outline-warning">&#9829;</a>
 							</div>
 						</div>
@@ -100,16 +107,23 @@ export const Home = () => {
 			</div>
 			<h1 className="text-center">Planetas</h1>
 			<div className="carrousel">
-				{planets.map((planets) => (
-					<div key={planets.url} className="card" style={{ width: '18rem', minWidth: '18rem' }}>
+				{planets
+				.filter(planet => planet.uid)
+				.map((planet) => (
+					<div key={planet.uid} className="card" style={{ width: '18rem', minWidth: '18rem' }}>
 						<img src="" className="card-img-top" alt="..." />
 						<div className="card-body">
-							<h5 className="card-title">Nombre: {planets.name}</h5>
-							<p className="card-text">Climate: {planets.climate}</p>
-							<p className="card-text">Diameter: {planets.diameter}</p>
-							<p className="card-text">Gravity: {planets.gravity}</p>
+							<h5 className="card-title">Nombre: {planet.name}</h5>
+							<p className="card-text">Climate: {planet.climate}</p>
+							<p className="card-text">Diameter: {planet.diameter}</p>
+							<p className="card-text">Gravity: {planet.gravity}</p>
 							<div className="d-flex justify-content-between">
-								<a href="#" className="btn btn-outline-primary">Learn More!</a>
+								 <Link
+                                    to={`/planet/${planet.uid}`}
+                                    className="btn btn-outline-primary"
+                                >
+                                    Learn More!
+                                </Link>
 								<a href="" className="btn btn-outline-warning">&#9829;</a>
 							</div>
 						</div>
